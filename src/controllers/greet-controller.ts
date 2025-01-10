@@ -3,7 +3,7 @@ import { NextFunction, Request, Response } from "express";
 const greet = (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     success: true,
-    message: `Welcome to CRUD Application!`,
+    message: `Welcome to CRUDify Application!`,
     time: new Date().toLocaleString(),
   });
 };

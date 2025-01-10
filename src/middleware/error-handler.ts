@@ -16,15 +16,9 @@ const ErrorHandlerMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  // Log the error stack for debugging purposes
-  console.error(err.stack);
-
   // Set the HTTP status code and error message
   const statusCode = err.statusCode || 500; // Default to 500 (Internal Server Error) if no specific status is set
   const message = err.message || "Something went wrong! Please try again."; // Default error message
-
-  // Log the error details for monitoring
-  console.log(`Error: ${message}\nWith Status Code: ${statusCode}`);
 
   // Send a structured JSON response with error details
   res.status(statusCode).json({

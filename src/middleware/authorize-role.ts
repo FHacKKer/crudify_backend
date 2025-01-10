@@ -8,8 +8,7 @@ import { NextFunction, Request, Response } from "express";
 const authorizeRole = (requiredRole: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     // Extract the user's role from the request body
-    const userRole = req.body?.role;
-
+    const userRole = req.user?.role;
     // Check if the user role is not provided
     if (!userRole) {
       res.status(403).json({

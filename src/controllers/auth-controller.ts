@@ -66,6 +66,14 @@ const signinController = async (
     // generate JWT access token with 1 hour expiration
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
+    // set access token in cookies
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    });
+
     // generate refresh token with 24 hours expiration
     const refreshToken = jwt.sign(
       {

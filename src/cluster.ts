@@ -5,7 +5,7 @@ import appConfig from "./config/appConfig";
 import connectToDb from "./config/dbConfig";
 
 // creating child processes (worker processes) that share the same server port,
-// allowing applications to fully utilize multi-core systems.
+// allowing applications to fully utilize multicore systems.
 // Node.js runs in a single-threaded event loop, and the cluster module enables scaling by forking the main process into multiple workers.
 
 if (cluster.isPrimary) {
@@ -30,7 +30,9 @@ if (cluster.isPrimary) {
       );
       console.error("Shutting down the cluster as a critical error occurred.");
       for (const id in cluster.workers) {
-        cluster.workers[id]?.kill();
+        if (cluster.workers) {
+          cluster.workers[id]?.kill();
+        }
       }
       process.exit(1);
     }

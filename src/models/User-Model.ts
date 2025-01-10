@@ -32,11 +32,6 @@ const UserModelSchema = new mongoose.Schema<IUser>(
       default: true, // Default is active
       required: false, // Optional field
     },
-    isAdmin: {
-      type: Boolean, // Flag indicating admin privileges
-      default: false, // Default is not an admin
-      required: false, // Optional field
-    },
     isVerified: {
       type: Boolean, // Indicates if the user has verified their account
       default: true, // Default is verified
