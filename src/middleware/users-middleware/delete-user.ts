@@ -1,31 +1,52 @@
-import {Request,Response,NextFunction} from "express"
+import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
+import { IAccessToken } from "../../types";
 
+function deleteUserMiddleware(req: Request, res: Response, next: NextFunction) {
+    // Extracting the userId from the request body
+    const payload = req.body as { userId: string };
 
-function deleteUserMiddleware(req:Request,res:Response,next:NextFunction) {
-
-    const payload = req.body as {userId:string};
-    if(!payload || !payload.userId) {
+    // Check if userId is provided in the request body
+    if (!payload || !payload.userId) {
         res.status(400).send({
-            success:false,
-            message:"User id not found",
-            timestamp:res.locals.timestamp,
+            success: false,
+            message: "Oops! We couldn't find the user ID. Please provide a valid user ID and try again.",
+            timestamp: res.locals.timestamp,
         });
-        return
-    }
-    const {userId} = payload;
-    if(mongoose.Types.ObjectId.isValid(userId)) {
-        res.status(400).send({
-            success:false,
-            message:`Invalid User ID : "${userId}"`
-        })
         return;
     }
 
+    const { userId } = payload;
+
+    // Validate if the provided userId is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        res.status(400).send({
+            success: false,
+            message: `The provided User ID "${userId}" is not valid. Please check and try again.`,
+            timestamp: res.locals.timestamp,
+        });
+        return;
+    }
+
+    // Check if the userId belongs to the current user (prevent self-deletion)
+    const { id: currentUserId } = req.user as IAccessToken;
+
+    if (userId === currentUserId) {
+        res.status(400).send({
+            success: false,
+            message: "You cannot delete your own account from this page. Please visit your profile settings to manage your account.",
+            timestamp: res.locals.timestamp,
+        });
+        return;
+    }
+
+    // Trim the userId and attach it back to the request body for further processing
     req.body = {
         userId: userId.toString().trim()
-    }
-    next()
+    };
+
+    // Pass control to the next middleware or route handler
+    next();
 }
 
-export default deleteUserMiddleware
+export default deleteUserMiddleware;

@@ -1,12 +1,18 @@
 import { Router } from "express";
 import ROLES from "../config/roles";
-import {createUserController, getUsersController, updateUserController} from "../controllers/user-controller";
+import {
+    createUserController,
+    deleteUserController,
+    getUsersController,
+    updateUserController
+} from "../controllers/user-controller";
 import AuthorizeRole from "../middleware/authorize-role";
 import VerifyAccessTokenMiddleware from "../middleware/token-verification";
 import {updateUserMiddleware} from "../middleware/users-middleware/update-user";
 import verifyAccessToken from "../middleware/token-verification";
 import authorizeRole from "../middleware/authorize-role";
 import createUserMiddleware from "../middleware/users-middleware/create-user";
+import deleteUserMiddleware from "../middleware/users-middleware/delete-user";
 
 // Create a new router instance for authentication routes
 const router = Router();
@@ -25,6 +31,8 @@ router.patch("/",verifyAccessToken, authorizeRole([ROLES.ADMIN]), updateUserMidd
 // Route for creating new user
 router.post("/", verifyAccessToken, authorizeRole([ROLES.ADMIN]),createUserMiddleware, createUserController)
 
+// Route for deleting user
+router.delete("/", verifyAccessToken,authorizeRole([ROLES.ADMIN]),deleteUserMiddleware, deleteUserController)
 
 
 export default router;

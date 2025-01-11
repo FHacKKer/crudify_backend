@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {UserModel} from "../models/User-Model";
-import {IEditableUserFields, IUser, UserRole} from "../types";
+import {IAccessToken, IEditableUserFields, IUser, UserRole} from "../types";
 import {AppError} from "../util/AppError";
 import bcrypt from "bcrypt";
 
@@ -39,14 +39,14 @@ function maskData(users: IUser[], role: UserRole): IUser[] {
 // Controller for get users route
 export const getUsersController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { role: userRole, id: currentUserId } = req.user!!;
+    const { role: userRole, id: currentUserId } = req.user as IAccessToken;
 
     // retrieving users from database
     const rawUsers = await UserModel.find({
       _id: {
         $ne: currentUserId,
       },
-    }).select("name username email isActive role createdAt").exec();
+    }).select("name username email isActive role createdAt");
 
     if (rawUsers.length === 0) {
       res.json({
@@ -57,11 +57,10 @@ export const getUsersController = async (req: Request, res: Response, next: Next
       return;
     }
 
-    let users = null;
+    let maskedUsers: IUser[] = [];
     if (userRole === "user") {
-      console.log(`Normal User, applying email masking!`);
-      // Masked User email for "user" role users
-      users = maskData(rawUsers, userRole);
+      // Masked User email for "user" role client
+      maskedUsers = maskData(rawUsers, userRole);
     }
 
     // returning users
@@ -69,7 +68,7 @@ export const getUsersController = async (req: Request, res: Response, next: Next
       timestamp: res.locals.timestamp,
       success: true,
       message: "User Fetched Successfully!",
-      users: users || rawUsers,
+      users: userRole === "user" ? maskedUsers : rawUsers,
     });
   } catch (error) {
     // getting error message if error is instance of Error class
@@ -119,6 +118,33 @@ export const createUserController = async (req:Request, res:Response, next:NextF
       message:`New User Created Successfully!`,
       timestamp:res.locals.timestamp,
       user:newUser
+    })
+  }catch (e) {
+    next(e)
+  }
+}
+
+
+export const deleteUserController = async (req:Request, res:Response, next:NextFunction) => {
+  try {
+    const { userId } = req.body;
+
+    const deletedUser = await UserModel.findByIdAndDelete(userId);
+
+    if(!deletedUser) {
+      res.status(400).json({
+        success: false,
+        message: "User not found with ID: "+userId,
+        timestamp:res.locals.timestamp
+      })
+      return
+    }
+
+    // Send a success response after the user has been deleted
+    res.status(200).json({
+      success:true,
+      message:`The user has been successfully deleted!`,
+      timestamp:res.locals.timestamp
     })
   }catch (e) {
     next(e)

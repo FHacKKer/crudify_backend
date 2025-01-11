@@ -2,6 +2,6 @@ POST http://localhost:3005/api/v1/auth/signin
 Content-Type: application/json
 
 {
-  "login": "faisal_ranjha",
-  "password": "Faisal786"
+  "login": "test",
+  "password": "test"
 }
