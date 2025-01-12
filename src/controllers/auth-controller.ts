@@ -64,7 +64,7 @@ const signinController = async (
     };
 
     // generate JWT access token with 1 hour expiration
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "10m" });
 
     // set access token in cookies
     res.cookie("accessToken", token, {
