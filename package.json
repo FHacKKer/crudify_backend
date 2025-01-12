@@ -1,5 +1,5 @@
 {
-  "name": "crud_backend",
+  "name": "crudify_backend",
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
@@ -8,10 +8,10 @@
     "start": "node --env-file=.env dist/server.js",
     "prestart": "npx tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["CRUD", "backend", "user-management", "authentication", "authorization"],
+  "author": "Faisal (FHackker)",
   "license": "ISC",
-  "description": "",
+  "description": "A backend system for CRUDify providing user management, role-based access control, authentication, and authorization features.",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
