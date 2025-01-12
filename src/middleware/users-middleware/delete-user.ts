@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import { IAccessToken } from "../../types";
 
+/**
+ * Middleware to handle validation and preparation of user deletion request.
+ * Ensures that userId is valid, belongs to another user, and is formatted correctly.
+ */
 function deleteUserMiddleware(req: Request, res: Response, next: NextFunction) {
     // Extracting the userId from the request body
     const payload = req.body as { userId: string };
@@ -13,7 +17,7 @@ function deleteUserMiddleware(req: Request, res: Response, next: NextFunction) {
             message: "Oops! We couldn't find the user ID. Please provide a valid user ID and try again.",
             timestamp: res.locals.timestamp,
         });
-        return;
+        return; // Return early if the userId is missing
     }
 
     const { userId } = payload;
@@ -25,7 +29,7 @@ function deleteUserMiddleware(req: Request, res: Response, next: NextFunction) {
             message: `The provided User ID "${userId}" is not valid. Please check and try again.`,
             timestamp: res.locals.timestamp,
         });
-        return;
+        return; // Return early if the userId is not valid
     }
 
     // Check if the userId belongs to the current user (prevent self-deletion)
@@ -37,7 +41,7 @@ function deleteUserMiddleware(req: Request, res: Response, next: NextFunction) {
             message: "You cannot delete your own account from this page. Please visit your profile settings to manage your account.",
             timestamp: res.locals.timestamp,
         });
-        return;
+        return; // Return early if the user is trying to delete their own account
     }
 
     // Trim the userId and attach it back to the request body for further processing

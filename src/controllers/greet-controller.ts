@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 
+// Function to send a welcome message for the base route
 const greet = (req: Request, res: Response, next: NextFunction) => {
+  // Responding with a welcome message and project details
   res.status(200).json({
     success: true,
     message: `Welcome to CRUDify!`,
@@ -16,8 +18,11 @@ const greet = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+// Function to send a personalized greeting message for the route with a name
 const greetName = (req: Request, res: Response, next: NextFunction) => {
-  const name = req.params.name;
+  const name = req.params.name; // Extracting the name from the URL parameter
+
+  // Responding with a personalized greeting message for the user
   res.status(200).json({
     success: true,
     message: `Hello ${name.trim()}, Welcome to CRUDify!`,
@@ -33,4 +38,5 @@ const greetName = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
+// Exporting both functions for use in other parts of the application
 export { greet, greetName };

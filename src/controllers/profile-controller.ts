@@ -9,20 +9,20 @@ export const getProfileController = async (req: Request, res: Response, next: Ne
     try {
         const { userId } = req.body;
 
-        // Find the user profile by ID and exclude the password field
+        // Attempt to find the user profile by ID and exclude the password field
         const userProfile = await UserModel.findById(userId).select("-password");
 
-        // If no user profile is found, respond with an error
+        // If no user profile is found, respond with an error message
         if (!userProfile) {
-             res.status(401).json({
+            res.status(401).json({
                 success: false,
                 message: `Failed to fetch profile for User ID: ${userId}`,
                 timestamp: res.locals.timestamp,
             });
-            return
+            return;
         }
 
-        // Respond with the user profile
+        // Respond with the user profile data on successful retrieval
         res.status(200).json({
             success: true,
             profile: userProfile,
@@ -49,16 +49,16 @@ export const updateProfileController = async (req: Request, res: Response, next:
             new: true, // Return the updated document
         });
 
-        // If no user is found to update, respond with an error
+        // If no user is found to update, respond with an error message
         if (!updatedUser) {
-             res.status(401).json({
+            res.status(401).json({
                 success: false,
                 message: `No user found with User ID: ${payload.userId}`,
             });
-            return
+            return;
         }
 
-        // Respond with success message
+        // Respond with success message after successfully updating the profile
         res.status(200).json({
             success: true,
             message: "Profile updated successfully!",
@@ -78,21 +78,21 @@ export const deleteProfileController = async (req: Request, res: Response, next:
     try {
         const { userId } = req.body as { userId: string };
 
-        // Check if the user profile exists
+        // Check if the user profile exists in the database
         const userProfile = await UserModel.findById(userId);
         if (!userProfile) {
-             res.status(401).json({
+            res.status(401).json({
                 success: false,
                 message: `No user found with User ID: ${userId}`,
                 timestamp: res.locals.timestamp,
             });
-            return
+            return;
         }
 
-        // Delete the user profile
+        // Proceed to delete the user profile if it exists
         await UserModel.findByIdAndDelete(userId);
 
-        // Respond with success
+        // Respond with success message after successfully deleting the profile
         res.status(200).json({
             success: true,
             message: "Profile deleted successfully!",

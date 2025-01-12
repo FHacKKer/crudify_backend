@@ -12,11 +12,13 @@ import deleteProfileMiddleware from "../middleware/profile-middleware/deleteProf
 
 const router = Router();
 
-// controller for profile fetching
-router.get('/',verifyAccessToken, authorizeRole([ROLES.ADMIN,ROLES.USER,ROLES.MODERATOR]), getProfileMiddleware,getProfileController)
+// Controller for profile fetching
+router.get('/', verifyAccessToken, authorizeRole([ROLES.ADMIN, ROLES.USER, ROLES.MODERATOR]), getProfileMiddleware, getProfileController);
 
-router.patch("/", verifyAccessToken, authorizeRole([ROLES.ADMIN,ROLES.USER,ROLES.MODERATOR]), updateProfileMiddleware, updateProfileController)
+// Controller for updating profile
+router.patch("/", verifyAccessToken, authorizeRole([ROLES.ADMIN, ROLES.USER, ROLES.MODERATOR]), updateProfileMiddleware, updateProfileController);
 
-router.delete("/", verifyAccessToken,authorizeRole([ROLES.ADMIN,ROLES.MODERATOR,ROLES.USER]), deleteProfileMiddleware, deleteProfileController)
+// Controller for deleting profile
+router.delete("/", verifyAccessToken, authorizeRole([ROLES.ADMIN, ROLES.MODERATOR, ROLES.USER]), deleteProfileMiddleware, deleteProfileController);
 
 export default router;

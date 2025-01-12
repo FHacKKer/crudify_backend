@@ -11,14 +11,14 @@ const updateProfileMiddleware = async (req: Request, res: Response, next: NextFu
         data: IEditableUserFields;
     };
 
-    // Validate the payload structure
+    // Validate the payload structure, check if data exists in the body
     if (!payload || !payload.data) {
-         res.status(400).json({
+        res.status(400).json({
             success: false,
             message: "No data provided for profile update.",
             timestamp: res.locals.timestamp,
         });
-        return
+        return;
     }
 
     // Retrieve the user information from the request object
@@ -27,27 +27,27 @@ const updateProfileMiddleware = async (req: Request, res: Response, next: NextFu
 
     const { data } = payload;
 
-    // Check if the payload data is empty
+    // Check if the payload data is empty (no fields provided)
     if (Object.keys(data).length === 0) {
-         res.status(400).json({
+        res.status(400).json({
             success: false,
             message: "Profile update data is empty. Please provide valid fields.",
             timestamp: res.locals.timestamp,
         });
-        return
+        return;
     }
 
-    // Filter out fields that are not editable
+    // Filter out fields that are not editable (based on the EditableUserFieldsArray)
     for (const key of Object.keys(data)) {
         if (!EditableUserFieldsArray.includes(key)) {
-            delete data[key as keyof IEditableUserFields];
+            delete data[key as keyof IEditableUserFields]; // Remove non-editable fields
         }
     }
 
     // Update the request body with the sanitized payload
     req.body = {
         userId: id,
-        data,
+        data, // Only the editable fields remain
     };
 
     // Proceed to the next middleware or route handler

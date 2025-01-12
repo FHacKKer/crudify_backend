@@ -8,16 +8,16 @@ import bcrypt from "bcrypt";
 function maskData(users: IUser[], role: UserRole): IUser[] {
   if (role === "user") {
     const processedData = users.map((user) => {
-      // implement logic here
+      // Masking the email and username for "user" role to ensure privacy
       const maskedEmail =
-        user.email.substring(0, 3) +
-        `*`.repeat(10) +
-        user.email.substring(user.email.length - 3);
+          user.email.substring(0, 3) +
+          `*`.repeat(10) +
+          user.email.substring(user.email.length - 3);
 
       const maskedUsername =
-        user.username.substring(0, 2) +
-        `*`.repeat(5) +
-        user.username.substring(user.username.length - 2);
+          user.username.substring(0, 2) +
+          `*`.repeat(5) +
+          user.username.substring(user.username.length - 2);
 
       return {
         name: user.name,
@@ -41,13 +41,14 @@ export const getUsersController = async (req: Request, res: Response, next: Next
   try {
     const { role: userRole, id: currentUserId } = req.user as IAccessToken;
 
-    // retrieving users from database
+    // Retrieving users from database excluding the current user
     const rawUsers = await UserModel.find({
       _id: {
         $ne: currentUserId,
       },
-    }).select("name username email isActive role createdAt");
+    }).select("id name username email isActive role createdAt");
 
+    // If no users found, return an empty array
     if (rawUsers.length === 0) {
       res.json({
         success: true,
@@ -59,11 +60,11 @@ export const getUsersController = async (req: Request, res: Response, next: Next
 
     let maskedUsers: IUser[] = [];
     if (userRole === "user") {
-      // Masked User email for "user" role client
+      // Mask user email for "user" role client
       maskedUsers = maskData(rawUsers, userRole);
     }
 
-    // returning users
+    // Returning users data (masked for "user" role)
     res.status(200).json({
       timestamp: res.locals.timestamp,
       success: true,
@@ -71,82 +72,89 @@ export const getUsersController = async (req: Request, res: Response, next: Next
       users: userRole === "user" ? maskedUsers : rawUsers,
     });
   } catch (error) {
-    // getting error message if error is instance of Error class
+    // Handling error and passing it to the next middleware
     const message =
-      error instanceof Error ? error.message : JSON.stringify(error);
+        error instanceof Error ? error.message : JSON.stringify(error);
     next(new AppError(message, 400));
   }
 };
 
-
-export const updateUserController = async (req:Request, res:Response, next:NextFunction) => {
+// Controller for updating user profile
+export const updateUserController = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const { userId, data: dataFields } = req.body as { userId: string; data: IEditableUserFields };
 
-    const { userId, data:dataFields } = req.body as {userId: string, data:IEditableUserFields}
+    // Attempting to update the user in the database
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, dataFields, { new: true }).exec();
 
-    const updatedUser = await UserModel.findByIdAndUpdate(userId,dataFields,{new:true}).exec();
-
-    if(!updatedUser) {
+    // If user is not found, throw an error
+    if (!updatedUser) {
       throw new AppError(`User not found with ID: "${userId}".`, 404);
     }
 
+    // Responding with success message and updated fields
     res.status(200).json({
-      success:true,
-      message:`Updated fields for user "${updatedUser?.name || "John Doe"}": ${Object.keys(dataFields).join(", ")}.`,
-      timestamp:res.locals.timestamp
-    })
-
-  }catch (e) {
-    next(e)
+      success: true,
+      message: `Updated fields for user "${updatedUser?.name || "John Doe"}": ${Object.keys(dataFields).join(", ")}.`,
+      timestamp: res.locals.timestamp,
+    });
+  } catch (e) {
+    // Passing error to error handling middleware
+    next(e);
   }
+};
 
-
-}
-
-
-export const createUserController = async (req:Request, res:Response, next:NextFunction) => {
+// Controller for creating a new user
+export const createUserController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user:IUser = req.body;
+    const user: IUser = req.body;
 
+    // Hashing the user's password before saving
     user.password = await bcrypt.hash(user.password, 10);
-    
-    const newUser = new UserModel(user)
+
+    // Creating a new user document and saving it to the database
+    const newUser = new UserModel(user);
     await newUser.save();
 
+    // Responding with success message and created user data
     res.status(201).json({
-      success:true,
-      message:`New User Created Successfully!`,
-      timestamp:res.locals.timestamp,
-      user:newUser
-    })
-  }catch (e) {
-    next(e)
+      success: true,
+      message: `New User Created Successfully!`,
+      timestamp: res.locals.timestamp,
+      user: newUser,
+    });
+  } catch (e) {
+    // Handling errors during user creation and passing it to the error middleware
+    next(e);
   }
-}
+};
 
-
-export const deleteUserController = async (req:Request, res:Response, next:NextFunction) => {
+// Controller for deleting a user profile
+export const deleteUserController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.body;
 
+    // Attempting to find and delete the user from the database
     const deletedUser = await UserModel.findByIdAndDelete(userId);
 
-    if(!deletedUser) {
+    // If no user is found, return an error response
+    if (!deletedUser) {
       res.status(400).json({
         success: false,
-        message: "User not found with ID: "+userId,
-        timestamp:res.locals.timestamp
-      })
-      return
+        message: "User not found with ID: " + userId,
+        timestamp: res.locals.timestamp,
+      });
+      return;
     }
 
-    // Send a success response after the user has been deleted
+    // Responding with success after deleting the user
     res.status(200).json({
-      success:true,
-      message:`The user has been successfully deleted!`,
-      timestamp:res.locals.timestamp
-    })
-  }catch (e) {
-    next(e)
+      success: true,
+      message: `The user has been successfully deleted!`,
+      timestamp: res.locals.timestamp,
+    });
+  } catch (e) {
+    // Passing error to error handling middleware
+    next(e);
   }
-}
+};

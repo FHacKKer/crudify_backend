@@ -10,7 +10,7 @@
   },
   "keywords": ["CRUD", "backend", "user-management", "authentication", "authorization"],
   "author": "Faisal (FHackker)",
-  "license": "ISC",
+  "license": "MIT",
   "description": "A backend system for CRUDify providing user management, role-based access control, authentication, and authorization features.",
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",

@@ -65,6 +65,14 @@ export function validateUser(user: IUser): IUserValidationResult {
         };
     }
 
+    if(role !== "user" && role !== "admin" && role !== "moderator") {
+        return {
+            success:false,
+            message:"Invalid role. The specified role is not available.",
+            user,
+        }
+    }
+
     // Return the processed user object with validated fields
     const processedUser:IUser = {
         name: trimmedName,
