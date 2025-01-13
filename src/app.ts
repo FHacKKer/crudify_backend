@@ -12,7 +12,7 @@ import profileRouter from "./routes/profile-routes";
 const app = express();
 
 // Allowed Origins
-const allowedOrigins = ["*"];
+const allowedOrigins = ["http://localhost:5173","https://crudify-ten.vercel.app"];
 // Options for CORS middleware
 const options: CorsOptions = {
     origin: allowedOrigins,
