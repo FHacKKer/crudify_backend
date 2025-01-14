@@ -7,31 +7,18 @@ import authRouter from "./routes/auth-routes";
 import greetRouter from "./routes/greet-routes";
 import profileRouter from "./routes/profile-routes";
 import userRouter from "./routes/user-routes";
-import { AppError } from "./util/AppError";
 
 // Initialize the Express application
 const app = express();
 
-// Allowed Origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://crudify-ten.vercel.app",
-];
 // Options for CORS middleware
 const options: CorsOptions = {
-  origin: (requestOrigin, callback) => {
-    if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
-      callback(null, true);
-    } else {
-      callback(new AppError("Not allowed by CORS", 401));
-    }
-  },
-  credentials: true,
+  origin: "*",
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
 };
 
 // Apply middlewares
 app.use(cors(options));
-app.options("*", cors(options)); // Handle Preflight Requests
 app.use(express.json());
 app.use(logger);
 app.use(timeStampMiddleware);
