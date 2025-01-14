@@ -1,13 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { UserModel } from "../../models/User-Model";
-import { AppError } from "../../util/AppError";
-import {IUser} from "../../types";
-import {validateUser} from "../../util/validate-user";
-import {isUserExist} from "../../util/isUserExist";
-
-
-
-
+import { IUser } from "../../types";
+import { isUserExist } from "../../util/isUserExist";
+import { validateUser } from "../../util/validate-user";
 
 /**
  * Middleware to handle user signup validation, ensuring user input is valid
@@ -26,7 +20,12 @@ const signUpMiddleware = (req: Request, res: Response, next: NextFunction) => {
     return;
   }
 
+  if (user.role || user.role === undefined) {
+    user.role = "user";
+  }
+
   const validationResult = validateUser(user);
+
   if (!validationResult.success) {
     // Respond with error message if validation fails
     res.status(401).json({
